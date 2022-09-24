@@ -55,6 +55,7 @@ sed -i "s/$cur_hostname/$new_hostname/g" /etc/hostname
 
 #egrep '^(VERSION|NAME|ID_LIKE)=' /etc/os-release
 
+
 #finding the package manager
 declare -A osInfo;
 osInfo[/etc/redhat-release]=yum
@@ -68,7 +69,7 @@ for f in ${!osInfo[@]}
 do
     if [[ -f $f ]];then
         Package_manager=${osInfo[$f]}
-        #echo $Package_manager
+        
        
     fi
 done
@@ -99,9 +100,10 @@ fi
 
 
 #configure firewall
-
+$warning
 systemctl stop firewalld
 systemctl disable firewalld
+$nocolour
 
 if [ -e "/etc/selinux/config" ]; then
 sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
