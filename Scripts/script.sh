@@ -44,12 +44,16 @@ fi
 public_ip=$(curl ifconfig.me)
 cur_hostname=$(cat /etc/hostname)
 new_hostname="Webpanel.in"
-
+zone="Asia/Kolkata"
+startTime=`date +%s`
 
 hostnamectl set-hostname $new_hostname
 
 sed -i "s/$cur_hostname/$new_hostname/g" /etc/hosts
 sed -i "s/$cur_hostname/$new_hostname/g" /etc/hostname
+
+
+timedatectl set-timezone $zone
 
 #Finding the OS Version
 
@@ -87,9 +91,10 @@ done
 
 if [[ $Package_manager -eq "yum" ]]; then
    echo -e "$alert Installing Packages $nocolour"
-   $Package_manager install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm -y
+   $Package_manager install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E '%{rhel}').noarch.rpm -y
    $Package_manager update -y
    $Package_manager install $software
+   check_result $? "yum install failed"
 
    
 fi
@@ -97,6 +102,27 @@ fi
 
 
 #install LAMP
+
+
+
+#----------------------------------------------------------#
+#                   Setting up mariadb                     #
+#----------------------------------------------------------#
+
+systemctl enable --now mariadb
+
+# Make sure that NOBODY can access the server without a password
+sql_password=$(</dev/urandom tr -dc A-Za-z0-9 | head -c16)
+mysql -e "UPDATE mysql.user SET Password = PASSWORD('$sql_password') WHERE User = 'root'"
+# Kill the anonymous users
+mysql -e "DROP USER ''@'localhost'"
+# Because our hostname varies we'll use some Bash magic here.
+mysql -e "DROP USER ''@'$(hostname)'"
+# Kill off the demo database
+mysql -e "DROP DATABASE test"
+# Make our changes take effect
+mysql -e "FLUSH PRIVILEGES"
+
 
 
 #configure firewall
@@ -111,3 +137,6 @@ setenforce 0
 fi
 
 
+EndTime=$(date +%s)
+
+echo -e "$success Script executed successfully. Time Elapsed $(($EndTime - $startTime)) seconds $nocolour" 
