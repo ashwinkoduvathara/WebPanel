@@ -41,7 +41,7 @@ fi
 #----------------------------------------------------------#
 
 
-
+interactive='yes'
 
 if [ "$interactive" = 'yes' ]; then
     read -p 'Would you like to continue [y/n]: ' answer
@@ -57,7 +57,7 @@ if [ "$interactive" = 'yes' ]; then
 
      # Asking for port
     if [ -z "$port" ]; then
-        read -p 'Please enter  port number (press enter for 8083): ' port
+        read -p 'Please enter  port number (press enter for 8080): ' port
     fi
 
     # Asking to set FQDN hostname
@@ -69,7 +69,14 @@ if [ "$interactive" = 'yes' ]; then
         sed -i "s/$cur_hostname/$servername/g" /etc/hostname
     fi
 fi
+#  if above values are blank
+if [ -z "$email" ]; then
+    email="admin@$servername"
+fi
 
+if [ -z "$port" ]; then
+    port="8080"
+fi
 
 public_ip=$(curl ifconfig.me)
 zone="Asia/Kolkata"
@@ -152,20 +159,21 @@ fi
 systemctl enable --now mariadb
 
 # Make sure that NOBODY can access the server without a password
-sql_password=$(</dev/urandom tr -dc A-Za-z0-9 | head -c16)
-mysql -e "UPDATE mysql.user SET Password = PASSWORD('$sql_password') WHERE User = 'root'"
+#sql_password=$(</dev/urandom tr -dc A-Za-z0-9 | head -c16)
+#mysql -e "UPDATE mysql.user SET Password = PASSWORD('$sql_password') WHERE User = 'root'"
 # Kill the anonymous users
-mysql -e "DROP USER ''@'localhost'"
+#mysql -e "DROP USER ''@'localhost'"
 # Because our hostname varies we'll use some Bash magic here.
-mysql -e "DROP USER ''@'$(hostname)'"
+#mysql -e "DROP USER ''@'$(hostname)'"
 # Kill off the demo database
-mysql -e "DROP DATABASE test"
+#mysql -e "DROP DATABASE test"
 # Make our changes take effect
-mysql -e "FLUSH PRIVILEGES"
+#mysql -e "FLUSH PRIVILEGES"
 
 
 
 #configure firewall
+
 $warning
 systemctl stop firewalld
 systemctl disable firewalld
@@ -175,7 +183,6 @@ if [ -e "/etc/selinux/config" ]; then
 sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 setenforce 0
 fi
-
 
 EndTime=$(date +%s)
 
