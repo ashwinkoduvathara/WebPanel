@@ -51,8 +51,6 @@ hostnamectl set-hostname $new_hostname
 
 sed -i "s/$cur_hostname/$new_hostname/g" /etc/hosts
 sed -i "s/$cur_hostname/$new_hostname/g" /etc/hostname
-
-
 timedatectl set-timezone $zone
 
 #Finding the OS Version
@@ -77,6 +75,27 @@ do
        
     fi
 done
+
+
+#----------------------------------------------------------#
+#                   Creating User                          #
+#----------------------------------------------------------#
+
+
+if [ ! -z "$(grep ^admin: /etc/passwd)" ] ; then
+    echo "Error: user admin exists"
+    echo
+    echo 'removing admin user proceeding.'
+    userdel -rf admin
+fi
+
+# Check admin group
+if [ ! -z "$(grep ^admin: /etc/group)" ]; then
+    echo "Error: group admin exists"
+    echo
+    echo 'removing admin group proceeding.'
+    groupdel -f admin
+fi
 
 
 
