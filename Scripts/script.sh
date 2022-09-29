@@ -41,16 +41,39 @@ fi
 #----------------------------------------------------------#
 
 
+
+
+if [ "$interactive" = 'yes' ]; then
+    read -p 'Would you like to continue [y/n]: ' answer
+    if [ "$answer" != 'y' ] && [ "$answer" != 'Y'  ]; then
+        echo 'Goodbye'
+        exit 1
+    fi
+
+    # Asking for contact email
+    if [ -z "$email" ]; then
+        read -p 'Please enter admin email address: ' email
+    fi
+
+     # Asking for port
+    if [ -z "$port" ]; then
+        read -p 'Please enter  port number (press enter for 8083): ' port
+    fi
+
+    # Asking to set FQDN hostname
+    if [ -z "$servername" ]; then
+        read -p "Please enter FQDN hostname : " servername
+        cur_hostname=$(cat /etc/hostname)
+        hostnamectl set-hostname $servername
+        sed -i "s/$cur_hostname/$servername/g" /etc/hosts
+        sed -i "s/$cur_hostname/$servername/g" /etc/hostname
+    fi
+fi
+
+
 public_ip=$(curl ifconfig.me)
-cur_hostname=$(cat /etc/hostname)
-new_hostname="Webpanel.in"
 zone="Asia/Kolkata"
 startTime=`date +%s`
-
-hostnamectl set-hostname $new_hostname
-
-sed -i "s/$cur_hostname/$new_hostname/g" /etc/hosts
-sed -i "s/$cur_hostname/$new_hostname/g" /etc/hostname
 timedatectl set-timezone $zone
 
 #Finding the OS Version
@@ -96,8 +119,6 @@ if [ ! -z "$(grep ^admin: /etc/group)" ]; then
     echo 'removing admin group proceeding.'
     groupdel -f admin
 fi
-
-
 
 
 
