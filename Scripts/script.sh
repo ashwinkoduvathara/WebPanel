@@ -14,14 +14,13 @@ error="\033[1;31m"
 nocolour="\033[00m"
 # Defining software pack for all distros
 software="nginx awstats bc bind bind-libs bind-utils clamav-server clamav-update
-    curl dovecot e2fsprogs exim expect fail2ban flex freetype ftp GeoIP httpd
+    curl dovecot e2fsprogs exim expect fail2ban flex freetype ftp GeoIP 
     ImageMagick iptables-services jwhois lsof mailx mariadb mariadb-server mc
-    mod_fcgid mod_ruid2 mod_ssl net-tools ntp openssh-clients pcre php
+    mod_fcgid mod_ruid2 mod_ssl net-tools ntp  pcre php
     php-bcmath php-cli php-common php-fpm php-gd php-imap php-mbstring
-    php-mcrypt phpMyAdmin php-mysql php-pdo phpPgAdmin php-pgsql php-soap
-    php-tidy php-xml php-xmlrpc postgresql postgresql-contrib
-    postgresql-server proftpd roundcubemail rrdtool rsyslog screen
-    spamassassin sqlite sudo tar telnet unzip vim-common vsftpd webalizer which zip"
+    php-mcrypt phpMyAdmin php-mysql php-pdo  php-pgsql php-soap
+    php-tidy php-xml php-xmlrpc  proftpd roundcubemail rrdtool rsyslog screen
+    spamassassin sqlite sudo tar telnet unzip vim vsftpd webalizer which zip"
 
 
 
@@ -44,21 +43,25 @@ fi
 interactive='yes'
 
 if [ "$interactive" = 'yes' ]; then
-    read -p 'Would you like to continue [y/n]: ' answer
+    $alert
+    read -p ' Would you like to continue [y/n]: ' answer
+    $nocolour
     if [ "$answer" != 'y' ] && [ "$answer" != 'Y'  ]; then
-        echo 'Goodbye'
+        echo -e "$error Goodbye $nocolour"
         exit 1
     fi
 
     # Asking for contact email
     if [ -z "$email" ]; then
+    $alert
         read -p 'Please enter admin email address: ' email
+    $nocolour
     fi
 
      # Asking for port
-    if [ -z "$port" ]; then
-        read -p 'Please enter  port number (press enter for 8080): ' port
-    fi
+    #if [ -z "$port" ]; then
+    #   read -p 'Please enter  port number (press enter for 8080): ' port
+    #fi
 
     # Asking to set FQDN hostname
     if [ -z "$servername" ]; then
